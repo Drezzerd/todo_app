@@ -1,0 +1,29 @@
+stages:
+  - build
+  - test
+
+variables:
+  IMAGE_TAG: "$DOCKER_USERNAME/my-django-app:latest"
+
+before_script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+build:
+  stage: build
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  only:
+    - main
+
+test:
+  stage: test
+  image: python:3.10
+  script:
+    - pip install -r requirements.txt
+    - python manage.py test
+  only:
+    - main
