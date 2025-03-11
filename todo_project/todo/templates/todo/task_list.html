@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Todo List</title>
+    <!-- Intégration de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white">
+
+<div class="container mt-5">
+    <h1 class="text-center">Ma Todo List</h1>
+
+    <!-- Formulaire d'ajout de tâche -->
+    <form action="{% url 'add_task' %}" method="POST" class="d-flex mt-4">
+        {% csrf_token %}
+        <input type="text" name="title" class="form-control me-2" placeholder="Ajouter une tâche" required>
+        <select name="priority" class="form-select me-2">
+            <option value="1">Faible</option>
+            <option value="2" selected>Moyenne</option>
+            <option value="3">Haute</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+    </form>
+    
+
+    <!-- Liste des tâches -->
+    <ul class="list-group mt-4">
+        {% for task in tasks %}
+            <li class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}bg-success text-white{% endif %}">
+                <div>
+                    <span class="badge {% if task.priority == 3 %}bg-danger{% elif task.priority == 2 %}bg-warning{% else %}bg-info{% endif %}">
+                        {% if task.priority == 3 %}Haute{% elif task.priority == 2 %}Moyenne{% else %}Faible{% endif %}
+                    </span>
+                    {{ task.title }}
+                </div>
+                <div>
+                    {% if not task.completed %}
+                        <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-outline-success">✔</a>
+                    {% endif %}
+                    <a href="{% url 'delete_task' task.id %}" class="btn btn-sm btn-outline-danger">🗑</a>
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-center">Aucune tâche pour l’instant.</li>
+        {% endfor %}
+    </ul>
+
+    <div class="container mt-3">
+        <nav class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand">Ma Todo List</a>
+            <div>
+                {% if user.is_authenticated %}
+                    <span class="text-white me-3">Bonjour, {{ user.username }}</span>
+                    <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm">Déconnexion</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Connexion</a>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+</div>
+
+<!-- Script Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
